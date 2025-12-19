@@ -2,13 +2,14 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
+    [SerializeField] Transform towerParent;
     Vector2Int coordinates;
     [SerializeField] bool isPlacable = true;
     GridManager gridManager;
     PathFinder pathFinder;
     ScoreBoard scoreBoard;
     WeaponSelection weaponSelection;
-    [SerializeField] Temprory temprory;
+    public Temprory temprory;
 
     [SerializeField] int requiredCurrencyForTowerPlacement;
 
@@ -47,7 +48,7 @@ public class Tile : MonoBehaviour
         {
             if(!pathFinder.WillBlockPath(coordinates))
             {
-                bool isSuccessful = Instantiate(temprory.weapon,transform.position,Quaternion.identity);
+                bool isSuccessful = Instantiate(temprory.weapon,transform.position,Quaternion.identity,towerParent);
                 scoreBoard.CurrencyManager(-temprory.requiredCrrency);
                 if(isSuccessful)
                 {

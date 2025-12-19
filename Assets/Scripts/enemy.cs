@@ -1,21 +1,23 @@
 using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
 public class enemy : MonoBehaviour
 {
+    [SerializeField] GameObject blastParticle;
     [SerializeField] int enemyHealth;
     [SerializeField] int enemyHealthInc = 10;
     int enemyHealthRef;
     List<Node> Path = new List<Node>();
 
-    [SerializeField] MachineGun machineGun;
-    [SerializeField] FlameThrower flameThrower;
-    [SerializeField] LaserGun laserGun;
+    [SerializeField] WeaponType machineGun;
+    [SerializeField] WeaponType flameThrower;
+    [SerializeField] WeaponType laserGun;
 
     PathFinder pathFinder;
     GridManager gridManager;
-    EnemyPool enemyPool;
+    EnemyManager enemyManager;
     ScoreBoard scoreBoard;
     DataStorerBTWScenes dataStorerBTWScenes;
 
@@ -28,10 +30,12 @@ public class enemy : MonoBehaviour
     [SerializeField] float enemySpeed = 5f;
     [SerializeField] int currencyForEnemyDestroy = 15;
 
+    public static event Action<enemy,EnemyStates> OnSpawned;
+
     void Awake()
     {
         dataStorerBTWScenes = FindFirstObjectByType<DataStorerBTWScenes>();
-        enemyPool = GetComponentInParent<EnemyPool>();
+        enemyManager = GetComponentInParent<EnemyManager>();
         gridManager = FindFirstObjectByType<GridManager>();
         pathFinder = FindFirstObjectByType<PathFinder>(); 
         scoreBoard = FindFirstObjectByType<ScoreBoard>();
@@ -39,10 +43,16 @@ public class enemy : MonoBehaviour
     }
 
     void OnEnable()
-    { 
+    {
+        OnSpawned?.Invoke(this,EnemyStates.Active); 
         firing = true;
         enemyHealthRef = enemyHealth;
         NewPath(true);
+    }
+
+    void OnDisable()
+    {
+        OnSpawned?.Invoke(this,EnemyStates.InActive);
     }
 
     void NewPath(bool newPath)
@@ -92,15 +102,15 @@ public class enemy : MonoBehaviour
     {
         if(other.CompareTag("MachineGun"))
         {
-            weaponBulletDamage =  machineGun.machineGunDamage;
+            weaponBulletDamage =  machineGun.weaponDamage;
         }
         if(other.CompareTag("FlameGun"))
         {
-            weaponBulletDamage = flameThrower.flameThrowerDamage;
+            weaponBulletDamage = flameThrower.weaponDamage;
         }
         if(other.CompareTag("LaserGun"))
         {
-            weaponBulletDamage = laserGun.laserGunDamage;
+            weaponBulletDamage = laserGun.weaponDamage;
         }
         enemyHealthRef -= weaponBulletDamage;
         if(enemyHealthRef<=0 && firing)
@@ -115,8 +125,9 @@ public class enemy : MonoBehaviour
     void EnemyDeadState()
     {
         enemyHealth += enemyHealthInc;
+        Instantiate(blastParticle,transform.position + Vector3.up*5f,Quaternion.identity);
         gameObject.SetActive(false);
         transform.position = gridManager.CoordinatesToPosition(pathFinder.StartCoords);
-        enemyPool.EnemyCollector(gameObject);
+        enemyManager.Dead();
     }
 }

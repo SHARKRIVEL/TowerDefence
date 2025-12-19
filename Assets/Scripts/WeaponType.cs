@@ -4,15 +4,10 @@ using UnityEngine;
 public class WeaponType : ScriptableObject
 {
     public int index;
-    public int requiredCurrencyToPlace = 400;
+    public int requiredCurrencyToPlace;
     public GameObject Weapon;
-    public int WeaponDamage = 4;
-
-    public int FireRate;
-
-    public int FireRateIncrement;
-
+    public int weaponDamage;
+    public float FireRate;
+    public float FireRateIncrement;
     public int RequiredCurrencyForWeaponUpgrade;
-
-    
 }

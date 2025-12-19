@@ -5,15 +5,10 @@ public class GunTools : MonoBehaviour
 {
     ScoreBoard scoreBoard;
     Tower tower;
-    [SerializeField]Weapon weapon;
-
-    [SerializeField]WeaponType weaponType;
+    [SerializeField] Weapon weapon;
+    [SerializeField] WeaponType weaponType;
     GridManager gridManager;
-
     int currencyForUpgrade;
-    int fireRate;
-
-
     [SerializeField] TMP_Text weaponLevelText;
     [SerializeField] GameObject gunTools;
     [SerializeField] GameObject Parent;
@@ -27,7 +22,6 @@ public class GunTools : MonoBehaviour
         scoreBoard = FindFirstObjectByType<ScoreBoard>();
         tower = GetComponentInParent<Tower>();
         currencyForUpgrade = weaponType.RequiredCurrencyForWeaponUpgrade;
-        fireRate = weaponType.FireRate;
     }
 
     public void GunToolsActivation()
@@ -70,9 +64,9 @@ public class GunTools : MonoBehaviour
 
     void WeaponUpgrading()
     {
-        weapon.BulletDamager(fireRate);
+        weapon.BulletDamager(weaponType.FireRate);
         scoreBoard.CurrencyManager(-currencyForUpgrade);
-        currencyForUpgrade += currencyForUpgrade;
+        currencyForUpgrade += weaponType.RequiredCurrencyForWeaponUpgrade;
         tower.Building();
     }
 }

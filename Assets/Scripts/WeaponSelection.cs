@@ -5,9 +5,9 @@ public class WeaponSelection : MonoBehaviour
     ScoreBoard scoreBoard;
     public Temprory temprory;
 
-    [SerializeField] MachineGun machineGun;
-    [SerializeField] LaserGun laserGun;
-    [SerializeField] FlameThrower flameThrower;
+    [SerializeField] WeaponType machineGun;
+    [SerializeField] WeaponType laserGun;
+    [SerializeField] WeaponType flameThrower;
 
     void Awake()
     {   
@@ -19,17 +19,16 @@ public class WeaponSelection : MonoBehaviour
 
     public void MachineGun()
     {
-        temprory.TemproryObject(machineGun.machineGun,machineGun.requiredCurrencyForMachineGun,machineGun.machineGunDamage);       
+        temprory.TemproryObject(machineGun.Weapon,machineGun.requiredCurrencyToPlace,machineGun.weaponDamage);       
     }
 
     public void FlameThrower()
     {
-        Debug.Log(flameThrower.requiredCurrencyForFlameThrower);
-       temprory.TemproryObject(flameThrower.flameThrower,flameThrower.requiredCurrencyForFlameThrower,flameThrower.flameThrowerDamage); 
+       temprory.TemproryObject(flameThrower.Weapon,flameThrower.requiredCurrencyToPlace,flameThrower.weaponDamage); 
     }
 
     public void LaserGun()
     {
-       temprory.TemproryObject(laserGun.laserGun,laserGun.requiredCurrencyForLaserGun,laserGun.laserGunDamage); 
+       temprory.TemproryObject(laserGun.Weapon,laserGun.requiredCurrencyToPlace,laserGun.weaponDamage); 
     }
 }

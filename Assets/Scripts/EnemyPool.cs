@@ -3,11 +3,23 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 
-public class EnemyPool : MonoBehaviour
+public class EnemyManager : MonoBehaviour
 {
+    [System.Serializable]
+    public class poolData
+    {
+        public int rank;
+        public GameObject prefab;
+        public int Size = 10;
+        public List<GameObject> pool;
+    }
+
+    public List<poolData> enemyPoolsData = new List<poolData>();
+    public Dictionary<int,List<GameObject>> enemyPools = new Dictionary<int,List<GameObject>>();
+
+    public List<LevelData> levelData;
+
     ScoreBoard scoreBoard;
-    DataStorerBTWScenes dataStorerBTWScenes;
-    EnemyPool enemyPool;
     GameManager gameManager;
 
     [SerializeField] GameObject enemyPrefab;
@@ -18,15 +30,13 @@ public class EnemyPool : MonoBehaviour
     public int enemyDamage = 2;
     bool poolCompleted = false;
 
-    List<GameObject> EnemyStorer = new List<GameObject>();
     List<GameObject> enemies;
+    int enemyCount = 15;
 
     void Awake()
     {
         gameManager = FindFirstObjectByType<GameManager>();
-        dataStorerBTWScenes = FindFirstObjectByType<DataStorerBTWScenes>();
         scoreBoard = FindFirstObjectByType<ScoreBoard>();
-        enemyPool = FindFirstObjectByType<EnemyPool>();
         enemies = new List<GameObject>(enemySize);
         EnemyPooling();
     }
@@ -38,11 +48,16 @@ public class EnemyPool : MonoBehaviour
 
     void EnemyPooling()
     {
-        for(int i = 0;i<enemySize;i++)
+        foreach(poolData pl in enemyPoolsData)
         {
-            GameObject enemy = Instantiate(enemyPrefab,transform);
-            enemies.Add(enemy);
-            enemy.SetActive(false);
+            pl.pool = new List<GameObject>();
+            for(int i=0;i<pl.Size;i++)
+            {
+                GameObject gb = Instantiate(pl.prefab,transform);
+                pl.pool.Add(gb);
+                gb.SetActive(false);
+            }
+            enemyPools[pl.rank] = pl.pool;
         }
     }
 
@@ -56,7 +71,7 @@ public class EnemyPool : MonoBehaviour
         }
         else
         {
-            dataStorerBTWScenes.LevelManager(1);
+            DataStorerBTWScenes.instance.LevelManager(1);
             gameManager.OnPlayAgain();
         }
     }
@@ -68,29 +83,21 @@ public class EnemyPool : MonoBehaviour
 
     IEnumerator EnemyStarter()
     {
-        enemySize = enemies.Count;;
-        for(int i = 0;i<enemySize;i++)
+        enemies = enemyPools[levelData[DataStorerBTWScenes.instance.Level].waveData[Wave].rank];
+        for(int i = 0;i<enemyCount;i++)
         {
             enemies[i].SetActive(true);
             yield return new WaitForSeconds(1f);
         }
     }
 
-    public void EnemyCollector(GameObject gb)
+    public void Dead()
     {
-        EnemyStorer.Add(gb);
-        if(EnemyStorer.Count == enemySize)
+        enemyCount--;
+        if(scoreBoard.towerHealth>0 && enemyCount == 0)
         {
-            enemies.Clear();
-            foreach(GameObject enemy in EnemyStorer)
-            {
-                enemies.Add(enemy);
-            }
-            EnemyStorer.Clear();
-            if(scoreBoard.towerHealth>0)
-            {
-                Invoker();
-            }
+            enemyCount = 10;
+            Invoker();
         }
     }
 }

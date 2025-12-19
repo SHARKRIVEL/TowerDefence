@@ -10,7 +10,7 @@ public class DataStorerBTWScenes : MonoBehaviour
     int enemyHealthInc = 5;
     public int currency = 75;
     int currencyIncByLevel = 75;
-    int Level = 0;
+    public int Level = 0;
     int Score = 0;
     public static DataStorerBTWScenes instance;
 
