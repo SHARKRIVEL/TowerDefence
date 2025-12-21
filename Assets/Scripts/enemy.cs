@@ -5,12 +5,9 @@ using System.Collections.Generic;
 
 public class enemy : MonoBehaviour
 {
+    [SerializeField] EnemyData enemyData;
     [SerializeField] GameObject blastParticle;
-    [SerializeField] int enemyHealth;
-    [SerializeField] int enemyHealthInc = 10;
-    int enemyHealthRef;
     List<Node> Path = new List<Node>();
-
     [SerializeField] WeaponType machineGun;
     [SerializeField] WeaponType flameThrower;
     [SerializeField] WeaponType laserGun;
@@ -19,34 +16,29 @@ public class enemy : MonoBehaviour
     GridManager gridManager;
     EnemyManager enemyManager;
     ScoreBoard scoreBoard;
-    DataStorerBTWScenes dataStorerBTWScenes;
+
+    [SerializeField] int enemyHealth;
+    int weaponBulletDamage;
 
     bool firing;
     float lerpMaxVal = 1f;
     float lerpVal = 0f;
-    int scoreForEnemyDeath = 10;
-    int twoerHealthDec = 1;
-    [SerializeField] int weaponBulletDamage = 2;
-    [SerializeField] float enemySpeed = 5f;
-    [SerializeField] int currencyForEnemyDestroy = 15;
 
     public static event Action<enemy,EnemyStates> OnSpawned;
 
     void Awake()
     {
-        dataStorerBTWScenes = FindFirstObjectByType<DataStorerBTWScenes>();
         enemyManager = GetComponentInParent<EnemyManager>();
         gridManager = FindFirstObjectByType<GridManager>();
-        pathFinder = FindFirstObjectByType<PathFinder>(); 
+        pathFinder = FindFirstObjectByType<PathFinder>();
         scoreBoard = FindFirstObjectByType<ScoreBoard>();
-        enemyHealth = dataStorerBTWScenes.enemyHealth;
     }
 
     void OnEnable()
     {
+        enemyHealth = enemyData.health;
         OnSpawned?.Invoke(this,EnemyStates.Active); 
         firing = true;
-        enemyHealthRef = enemyHealth;
         NewPath(true);
     }
 
@@ -86,14 +78,14 @@ public class enemy : MonoBehaviour
                 while(lerpVal<lerpMaxVal)
                 {
                     transform.position = Vector3.Lerp(startPos,endPos,lerpVal);
-                    lerpVal += Time.deltaTime*enemySpeed;
+                    lerpVal += Time.deltaTime*enemyData.speed;
                     yield return new WaitForEndOfFrame();
                 }
             }
         }
         if(scoreBoard.towerHealth>0)
         {
-            scoreBoard.TowerHealth(twoerHealthDec);
+            scoreBoard.TowerHealth(enemyData.damageToTower);
         }
         EnemyDeadState();
     }
@@ -104,27 +96,30 @@ public class enemy : MonoBehaviour
         {
             weaponBulletDamage =  machineGun.weaponDamage;
         }
+
         if(other.CompareTag("FlameGun"))
         {
             weaponBulletDamage = flameThrower.weaponDamage;
         }
+
         if(other.CompareTag("LaserGun"))
         {
             weaponBulletDamage = laserGun.weaponDamage;
         }
-        enemyHealthRef -= weaponBulletDamage;
-        if(enemyHealthRef<=0 && firing)
+        
+
+        enemyHealth -= weaponBulletDamage;
+        if(enemyHealth<=0 && firing)
         {
             firing = false;
-            dataStorerBTWScenes.ScoreManager(scoreForEnemyDeath);
-            scoreBoard.CurrencyManager(currencyForEnemyDestroy);
+            DataStorerBTWScenes.instance.ScoreManager(enemyData.scoreForDeath);
+            scoreBoard.CurrencyManager(enemyData.currencyForEnemyDestroy);
             EnemyDeadState();
         }
     }
 
     void EnemyDeadState()
     {
-        enemyHealth += enemyHealthInc;
         Instantiate(blastParticle,transform.position + Vector3.up*5f,Quaternion.identity);
         gameObject.SetActive(false);
         transform.position = gridManager.CoordinatesToPosition(pathFinder.StartCoords);

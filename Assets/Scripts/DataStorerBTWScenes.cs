@@ -5,9 +5,6 @@ public class DataStorerBTWScenes : MonoBehaviour
 {
     [SerializeField] TMP_Text scoreText;
     [SerializeField] TMP_Text levelText;
-
-    public int enemyHealth = 10;
-    int enemyHealthInc = 5;
     public int currency = 75;
     int currencyIncByLevel = 75;
     public int Level = 0;
@@ -24,7 +21,7 @@ public class DataStorerBTWScenes : MonoBehaviour
         instance  = this;
         DontDestroyOnLoad(gameObject);
         ScoreManager(Score);
-        LevelManager(1);
+        //LevelManager(1);
     }
 
     public void ScoreManager(int score)
@@ -33,11 +30,11 @@ public class DataStorerBTWScenes : MonoBehaviour
         scoreText.text = "SCORE : "+ Score;
     }
 
-    public void LevelManager(int level)
+    public void LevelManager()
     {
-        enemyHealth += enemyHealthInc;
+        //enemyHealth += enemyHealthInc;
         currency += currencyIncByLevel;
-        Level += level;
+        Level++;
         levelText.text = "LEVEL : "+Level;
     }
 }

@@ -2,9 +2,11 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using System.Linq;
 
 public class EnemyManager : MonoBehaviour
 {
+    //All enemies data
     [System.Serializable]
     public class poolData
     {
@@ -13,31 +15,24 @@ public class EnemyManager : MonoBehaviour
         public int Size = 10;
         public List<GameObject> pool;
     }
-
     public List<poolData> enemyPoolsData = new List<poolData>();
-    public Dictionary<int,List<GameObject>> enemyPools = new Dictionary<int,List<GameObject>>();
+    Dictionary<int,List<GameObject>> enemyPools = new Dictionary<int, List<GameObject>>();
 
-    public List<LevelData> levelData;
+    //Level ScriptableObjects
+    public List<LevelData> levelSbs;
+    [SerializeField] TMP_Text waveText;
+    [SerializeField] int Waves = 10;
+    int Wave = 0;
+    [SerializeField] int enemyCount = 10;
+    public List<GameObject> enemies;
 
     ScoreBoard scoreBoard;
     GameManager gameManager;
-
-    [SerializeField] GameObject enemyPrefab;
-    [SerializeField] TMP_Text waveText;
-    [SerializeField] int enemySize = 10;
-    [SerializeField] int Waves = 10;
-    int Wave = 1;
-    public int enemyDamage = 2;
-    bool poolCompleted = false;
-
-    List<GameObject> enemies;
-    int enemyCount = 15;
 
     void Awake()
     {
         gameManager = FindFirstObjectByType<GameManager>();
         scoreBoard = FindFirstObjectByType<ScoreBoard>();
-        enemies = new List<GameObject>(enemySize);
         EnemyPooling();
     }
 
@@ -53,7 +48,7 @@ public class EnemyManager : MonoBehaviour
             pl.pool = new List<GameObject>();
             for(int i=0;i<pl.Size;i++)
             {
-                GameObject gb = Instantiate(pl.prefab,transform);
+                GameObject gb = Instantiate(pl.prefab,transform.position,Quaternion.identity,transform);
                 pl.pool.Add(gb);
                 gb.SetActive(false);
             }
@@ -63,15 +58,14 @@ public class EnemyManager : MonoBehaviour
 
     void Invoker()
     {
-        if(Wave<=Waves)
+        if(Wave<Waves)
         {
             waveText.text = "WAVE : "+Wave +"/"+Waves;
             Invoke("PoolStarter",3f);
-            Wave++;
         }
         else
         {
-            DataStorerBTWScenes.instance.LevelManager(1);
+            DataStorerBTWScenes.instance.LevelManager();
             gameManager.OnPlayAgain();
         }
     }
@@ -83,12 +77,14 @@ public class EnemyManager : MonoBehaviour
 
     IEnumerator EnemyStarter()
     {
-        enemies = enemyPools[levelData[DataStorerBTWScenes.instance.Level].waveData[Wave].rank];
-        for(int i = 0;i<enemyCount;i++)
+        Debug.Log(Wave);
+        enemies = enemyPools[levelSbs[DataStorerBTWScenes.instance.Level].waveData[Wave].rank];
+        for(int i = 0;i<enemies.Count;i++)
         {
-            enemies[i].SetActive(true);
             yield return new WaitForSeconds(1f);
+            enemies[i].SetActive(true);
         }
+        Wave++;
     }
 
     public void Dead()

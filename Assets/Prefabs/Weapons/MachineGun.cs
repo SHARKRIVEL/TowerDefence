@@ -14,17 +14,17 @@ public class MachineGun : Weapon
 
     protected override void Firing()
     {
-        if(enemyLook)
+        if(nearestEnemy)
         {
-            float targetPos = Vector3.Distance(transform.position,enemyLook.transform.position);
-            if(targetPos<weaponRange && !scoreBoard.gamePos && enemyLook.gameObject.activeInHierarchy)
+            float targetPos = Vector3.Distance(transform.position,nearestEnemy.transform.position);
+            if(targetPos<weaponRange && !scoreBoard.gamePos && nearestEnemy.gameObject.activeInHierarchy)
             {
                 enemyDitected = true;
                 if(!triggered)
                 {
                     StartCoroutine(fireRateBasedAudio());
                 }
-                transform.LookAt(enemyLook.transform.position);
+                transform.LookAt(nearestEnemy.transform.position);
             }
             else
             {

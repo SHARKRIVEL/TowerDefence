@@ -13,7 +13,7 @@ public class Weapon : MonoBehaviour
     float distanceBtwenemyAndWeaponRange;
     float bulletsPerSecond;
     public float bulletFireRate;
-    public enemy enemyLook;
+    public enemy nearestEnemy;
     public ScoreBoard scoreBoard;
     TowersPool towersPool;
 
@@ -48,7 +48,7 @@ public class Weapon : MonoBehaviour
             distanceBtwenemyAndWeaponRange = Vector3.Distance(transform.position,enemy.transform.position);
             if(distanceBtwenemyAndWeaponRange<maxDist)
             {    
-                enemyLook = enemy;
+                nearestEnemy = enemy;
                 maxDist = distanceBtwenemyAndWeaponRange;
             }
         }
@@ -56,17 +56,17 @@ public class Weapon : MonoBehaviour
 
     protected virtual void Firing()
     {
-        if(enemyLook)
+        if(nearestEnemy)
         {
-            float targetPos = Vector3.Distance(transform.position,enemyLook.transform.position);
-            if(targetPos<weaponRange && !scoreBoard.gamePos && enemyLook.gameObject.activeInHierarchy)
+            float targetPos = Vector3.Distance(transform.position,nearestEnemy.transform.position);
+            if(targetPos<weaponRange && !scoreBoard.gamePos && nearestEnemy.gameObject.activeInHierarchy)
             {
                 enemyDitected = true;
                 if(!audioSource.isPlaying)
                 {
                     audioSource.Play();
                 }
-                transform.LookAt(enemyLook.transform.position);
+                transform.LookAt(nearestEnemy.transform.position);
             }
             else
             {

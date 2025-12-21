@@ -1,8 +1,12 @@
 using UnityEngine;
 
-[System.Serializable]
-public class EnemyData
+[CreateAssetMenu(fileName = "EnemyData",menuName = "Scriptable Objects/EnemyData")]
+public class EnemyData : ScriptableObject
 {
-    public GameObject prefab;
-    public int rank;
+    public int currencyForEnemyDestroy;
+    public float speed;
+    public int health;
+    public int healthInc;
+    public int scoreForDeath;
+    public int damageToTower;
 }
